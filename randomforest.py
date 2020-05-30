@@ -71,7 +71,7 @@ clf = clf.best_estimator_ # best estimator
 # 変数重要度を出力
 with open(f"./output/importance_rf_{hs}.csv", "w", newline="", encoding="utf-8") as f:
     f.write("feature,importance\n")
-    for name, score in zip(X_train.columns, clf.feature_importances_):
+    for name, score in sorted(zip(X_train.columns, clf.feature_importances_), reverse=True):
         f.write(f"{name},{score}\n")
         print(f"{name}: {score}")
 
