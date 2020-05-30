@@ -71,8 +71,9 @@ clf = clf.best_estimator_ # best estimator
 # 変数重要度を出力
 with open(f"./output/importance_rf_{hs}.csv", "w", newline="", encoding="utf-8") as f:
     f.write("feature,importance\n")
-    for i, j in zip(X_train.columns, clf.feature_importances_):
-        f.write(f"{i},{j}\n")
+    for name, score in zip(X_train.columns, clf.feature_importances_):
+        f.write(f"{name},{score}\n")
+        print(f"{name}: {score}")
 
 # テストデータを予測する
 y_pred_proba = clf.predict_proba(X_test)
