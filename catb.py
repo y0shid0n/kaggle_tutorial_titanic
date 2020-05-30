@@ -22,7 +22,7 @@ categorical_features = ["Pclass", "Sex", "is_alone", "is_alone_2", "title", 'Emb
 # trainとvalidに分割
 X_train, X_valid, y_train, y_valid = train_test_split(X, y, random_state=1031)
 
-# lightgbm用のオブジェクトに変換
+# catboost用のオブジェクトに変換
 trains = Pool(X_train, label=y_train, cat_features=categorical_features)
 valids = Pool(X_valid, label=y_valid, cat_features=categorical_features)
 
