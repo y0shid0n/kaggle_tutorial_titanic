@@ -17,10 +17,10 @@ with open("./pkl/lgbm_f9a7f16ed061fbefb81b345d331d60b9.pkl", "rb") as f:
 # データ読み込み
 df_test = pd.read_csv("./data/test_prep.csv")
 
-df_lr = pd.read_csv("./output/base_pred_proba_lr_33ccd66fcc615dbcbe55409d5829fb75.csv")
-df_rf = pd.read_csv("./output/base_pred_proba_rf_183cebaf4b4c4179e0d8e4faf71f38fd.csv")
-df_knn = pd.read_csv("./output/base_pred_proba_knn_891c09c3095237ef5e270a8efd5df9d3.csv")
-df_lgbm = pd.read_csv("./output/base_pred_proba_lgbm_f9a7f16ed061fbefb81b345d331d60b9.csv")
+df_lr = pd.read_csv("./output/base_pred_lr_33ccd66fcc615dbcbe55409d5829fb75.csv")
+df_rf = pd.read_csv("./output/base_pred_rf_183cebaf4b4c4179e0d8e4faf71f38fd.csv")
+df_knn = pd.read_csv("./output/base_pred_knn_891c09c3095237ef5e270a8efd5df9d3.csv")
+df_lgbm = pd.read_csv("./output/base_pred_lgbm_f9a7f16ed061fbefb81b345d331d60b9.csv")
 
 df_all = df_lr.rename(columns={"pred": "lr"})\
     .merge(df_rf, on=["PassengerId", "Survived"], how="inner")\
