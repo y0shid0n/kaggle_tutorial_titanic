@@ -7,7 +7,7 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 import hashlib
 import random
-from mlp_net import net
+import mlp_net
 
 seed = 1031
 def set_seed(seed):
@@ -44,6 +44,8 @@ ds_train = TensorDataset(X_train, y_train)
 
 # 異なる順番で64個ずつデータを返すDataLoaderを作成
 loader = DataLoader(ds_train, batch_size=64, shuffle=True)
+
+net = mlp_net.net()
 
 loss_fn = nn.CrossEntropyLoss()
 optimizer = optim.Adam(net.parameters())
