@@ -15,10 +15,10 @@ y = df_train["Survived"]
 X_test = df_test.drop(["PassengerId", "Survived"], axis=1)
 
 # カテゴリカル変数
-categorical_features = ["Pclass", "Sex", "is_alone_2", "title", 'Embarked', "ticket_initials", "cabin_initials"]
+categorical_features = ["Pclass", "Sex", "is_alone_2", "title", 'Embarked', "ticket_initials", "cabin_initials", "pclass_sex"]
 
 # trainとvalidに分割
-X_train, X_valid, y_train, y_valid = train_test_split(X, y, random_state=1031)
+X_train, X_valid, y_train, y_valid = train_test_split(X, y, random_state=1031, stratify=df_train["Survived"])
 
 # lightgbm用のオブジェクトに変換
 trains = lgb.Dataset(X_train, label=y_train, categorical_feature=categorical_features)
