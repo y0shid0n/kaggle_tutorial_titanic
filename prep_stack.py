@@ -12,7 +12,7 @@ df_all = pd.read_csv("./data/all_prep.csv")
 
 # nontree系モデル用の処理
 # ダミー変数の作成
-categorical_features = ["Embarked", "ticket_initials", "cabin_initials", "title"]
+categorical_features = ["Embarked", "ticket_initials", "cabin_initials", "pclass_sex", "title"]
 for col in categorical_features:
     tmp = pd.get_dummies(df_all[col], drop_first=True)
     tmp.columns = [f"dummy_{col}_{str(i)}" for i in tmp.columns]

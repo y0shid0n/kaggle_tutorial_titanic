@@ -19,16 +19,40 @@ df_tmp["Embarked"] = df_tmp["Embarked"].mask(df_tmp["Embarked"].isnull(), df_tmp
 df_tmp["same_ticket"] = df_tmp.groupby("Ticket")["Sex"].transform("count")
 
 # Ticketの頭1文字をとる
-# 少ないやつは1まとめにする
 df_tmp["ticket_initials"] = df_tmp["Ticket"].str[:1]
+
+# ticketごとのPclass==1、Pclass==3の割合
+ticket_pclass = df_tmp.groupby(["ticket_initials", "Pclass"], as_index=False)["Sex"].count()
+ticket_pclass["all"] = ticket_pclass.groupby("ticket_initials")["Sex"].transform("sum")
+ticket_pclass["rate"] = ticket_pclass["Sex"] / ticket_pclass["all"]
+
+ticket_p1_rate = ticket_pclass.query("Pclass == 1")[["ticket_initials", "rate"]].rename(columns={"rate": "ticket_p1_rate"})
+df_tmp = df_tmp.merge(ticket_p1_rate, on="ticket_initials", how="left")
+df_tmp["ticket_p1_rate"] = df_tmp["ticket_p1_rate"].fillna(0)
+
+ticket_p3_rate = ticket_pclass.query("Pclass == 3")[["ticket_initials", "rate"]].rename(columns={"rate": "ticket_p3_rate"})
+df_tmp = df_tmp.merge(ticket_p3_rate, on="ticket_initials", how="left")
+df_tmp["ticket_p3_rate"] = df_tmp["ticket_p3_rate"].fillna(0)
+
+# ticketの少ないやつは1まとめにする
 df_tmp["ticket_initials"] = df_tmp["ticket_initials"].apply(lambda x: "4" if re.match("[4-9]", x) else x)
 df_tmp["ticket_initials"] = df_tmp["ticket_initials"].apply(lambda x: "O" if re.match("F|L|W", x) else x)
 
 # Cabinの頭1文字をとる
-# 少ないものは1まとめにする
 df_tmp["cabin_initials"] = df_tmp["Cabin"].str[:1]
+
+# CabinごとのPclass == 1の割合
+cabin_pclass = df_tmp.groupby(["cabin_initials", "Pclass"], as_index=False)["Sex"].count()
+cabin_pclass["all"] = cabin_pclass.groupby("cabin_initials")["Sex"].transform("sum")
+cabin_pclass["rate"] = cabin_pclass["Sex"] / cabin_pclass["all"]
+
+cabin_p1_rate = cabin_pclass.query("Pclass == 1")[["cabin_initials", "rate"]].rename(columns={"rate": "cabin_p1_rate"})
+df_tmp = df_tmp.merge(cabin_p1_rate, on="cabin_initials", how="left")
+df_tmp["cabin_p1_rate"] = df_tmp["cabin_p1_rate"].fillna(0)
+
+# 少ないものは1まとめにする
 df_tmp["cabin_initials"] = df_tmp["cabin_initials"].mask(df_tmp["cabin_initials"].isnull(), "Z")
-df_tmp["cabin_initials"] = df_tmp["cabin_initials"].mask(df_tmp["cabin_initials"].isin(["G", "T"]), "O")
+df_tmp["cabin_initials"] = df_tmp["cabin_initials"].mask(df_tmp["cabin_initials"].isin(["F", "G", "T"]), "O")
 
 # 性別を数値に置き換え
 df_tmp["Sex"] = df_tmp["Sex"].replace("male", 1).replace("female", 0)
@@ -79,8 +103,10 @@ for column in ["pclass_sex", "ticket_initials", "cabin_initials", "title"]:
 # 不要なカラムを削除
 df_tmp = df_tmp.drop(["Name", "Ticket", "Cabin", "SibSp", "Parch"], axis=1)
 
-# testデータのFareに欠損があるので中央値で埋める
-df_tmp["Fare"] = df_tmp["Fare"].mask(df_tmp["Fare"].isnull(), df_tmp["Fare"].median())
+# testデータのFareに欠損がある
+# 同一Pclass（Pclass == 3）の中央値で埋める
+fare_pclass_3 = df_tmp[df_tmp["Pclass"] == 3]["Fare"].median()
+df_tmp["Fare"] = df_tmp["Fare"].mask(df_tmp["Fare"].isnull(), fare_pclass_3)
 
 # idを戻す
 df_tmp = pd.concat([df_id, df_tmp], axis=1)
