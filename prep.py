@@ -12,9 +12,6 @@ df_all = pd.concat([df_train, df_test], sort=False, ignore_index=True)
 df_tmp = df_all.drop(["PassengerId", "Survived"], axis=1)
 df_id = df_all[["PassengerId", "Survived"]]
 
-# Cabinは落とす
-df_tmp = df_tmp.drop("Cabin", axis=1)
-
 # Embarkedは最頻値で埋める
 df_tmp["Embarked"] = df_tmp["Embarked"].mask(df_tmp["Embarked"].isnull(), df_tmp["Embarked"].mode()[0])
 
@@ -27,8 +24,17 @@ df_tmp["ticket_initials"] = df_tmp["Ticket"].str[:1]
 df_tmp["ticket_initials"] = df_tmp["ticket_initials"].apply(lambda x: "4" if re.match("[4-9]", x) else x)
 df_tmp["ticket_initials"] = df_tmp["ticket_initials"].apply(lambda x: "O" if re.match("F|L|W", x) else x)
 
+# Cabinの頭1文字をとる
+# 少ないものは1まとめにする
+df_tmp["cabin_initials"] = df_tmp["Cabin"].str[:1]
+df_tmp["cabin_initials"] = df_tmp["cabin_initials"].mask(df_tmp["cabin_initials"].isnull(), "Z")
+df_tmp["cabin_initials"] = df_tmp["cabin_initials"].mask(df_tmp["cabin_initials"].isin(["G", "T"]), "O")
+
 # 性別を数値に置き換え
 df_tmp["Sex"] = df_tmp["Sex"].replace("male", 1).replace("female", 0)
+
+# PclassとSexの組み合わせ
+df_tmp["pclass_sex"] = df_tmp["Pclass"].apply(lambda x: str(x)) + "_" + df_tmp["Sex"].apply(lambda x: str(x))
 
 # Embarkedを数値に置き換え
 df_tmp["Embarked"] = df_tmp["Embarked"].replace("C", 0).replace("Q", 1).replace("S", 2)
@@ -37,8 +43,8 @@ df_tmp["Embarked"] = df_tmp["Embarked"].replace("C", 0).replace("Q", 1).replace(
 df_tmp["family_size"] = df_tmp["SibSp"] + df_tmp["Parch"] + 1
 
 # 単身フラグ
-df_tmp["is_alone"] = 0
-df_tmp["is_alone"] = df_tmp["is_alone"].mask(df_tmp["family_size"] == 1, 1)
+# df_tmp["is_alone"] = 0
+# df_tmp["is_alone"] = df_tmp["is_alone"].mask(df_tmp["family_size"] == 1, 1)
 
 # 単身フラグ2
 # same_ticketとfamily_sizeが両方1だったら単身
@@ -59,10 +65,10 @@ df_tmp.loc[(df_tmp.Age.isnull()) & (df_tmp.title=='Miss'), 'Age'] = df_tmp.Age[d
 df_tmp.loc[(df_tmp.Age.isnull()) & (df_tmp.title=='Other'), 'Age'] = df_tmp.Age[df_tmp.title=="Other"].mean()
 
 # binning
-df_tmp["age_bin"] = pd.cut(df_tmp["Age"], 6)
+# df_tmp["age_bin"] = pd.cut(df_tmp["Age"], 6)
 
 # lightgbmは数値かbooleanしかダメなのでlabel encodingが必要
-for column in ["ticket_initials", "title", "age_bin"]:
+for column in ["pclass_sex", "ticket_initials", "cabin_initials", "title"]:
     target_column = df_tmp[column]
     le = LabelEncoder()
     le.fit(target_column)
@@ -71,7 +77,7 @@ for column in ["ticket_initials", "title", "age_bin"]:
     df_tmp[column] = le.transform(target_column)
 
 # 不要なカラムを削除
-df_tmp = df_tmp.drop(["Name", "Ticket"], axis=1)
+df_tmp = df_tmp.drop(["Name", "Ticket", "Cabin", "SibSp", "Parch"], axis=1)
 
 # testデータのFareに欠損があるので中央値で埋める
 df_tmp["Fare"] = df_tmp["Fare"].mask(df_tmp["Fare"].isnull(), df_tmp["Fare"].median())
