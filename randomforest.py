@@ -21,7 +21,7 @@ X_test = df_test.drop(["PassengerId", "Survived"], axis=1)
 # use a full grid over all parameters
 param_grid = {
     "max_depth": [3, 4, 5, 6, 7, None],
-    "max_features": [5, 10, 15],
+    "max_features": [5, 7, 10, 12],
     "min_samples_split": [2, 3, 5],
     "min_samples_leaf": [1, 3, 5],
     # const

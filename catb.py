@@ -17,7 +17,7 @@ y = df_train["Survived"]
 X_test = df_test.drop(["PassengerId", "Survived"], axis=1)
 
 # カテゴリカル変数
-categorical_features = ["Pclass", "Sex", "is_alone", "is_alone_2", "title", 'Embarked', "ticket_initials"]
+categorical_features = ["Pclass", "Sex", "is_alone_2", "title", 'Embarked', "ticket_initials", "cabin_initials"]
 
 # trainとvalidに分割
 X_train, X_valid, y_train, y_valid = train_test_split(X, y, random_state=1031)
