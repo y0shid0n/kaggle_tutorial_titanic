@@ -8,8 +8,8 @@ import hashlib
 import pickle
 
 # 読み込み
-df_train = pd.read_csv("./data/train_prep_base.csv")
-df_test = pd.read_csv("./data/train_prep_valid.csv")
+df_train = pd.read_csv("./data/train_prep_nontree_base.csv")
+df_test = pd.read_csv("./data/train_prep_nontree_valid.csv")
 
 X_train = df_train.drop(["PassengerId", "Survived"], axis=1)
 y_train = df_train["Survived"]
@@ -22,10 +22,10 @@ X_test = df_test.drop(["PassengerId", "Survived"], axis=1)
 # X_test = X_test[cols]
 
 # 特徴量をランダムフォレストの重要度が高いやつに絞る
-#cols = ["Sex", "title", "umap_2", "Pclass", "Fare", "umap_1", "Age"]
-cols = ["Sex", "title", "umap_2", "umap_1", "Age", "Embarked", "ticket_1"]
-X_train = X_train[cols]
-X_test = X_test[cols]
+# cols = ["Sex", "title", "umap_2", "Pclass", "Fare", "umap_1", "Age"]
+# cols = ["Sex", "title", "umap_2", "umap_1", "Age", "Embarked", "ticket_initials"]
+# X_train = X_train[cols]
+# X_test = X_test[cols]
 
 param_grid = {
     "n_neighbors": np.array(range(1, 10, 2)),  # 奇数

@@ -8,8 +8,8 @@ import hashlib
 import pickle
 
 # 読み込み
-df_train = pd.read_csv("./data/train_prep_base.csv")
-df_test = pd.read_csv("./data/train_prep_valid.csv")
+df_train = pd.read_csv("./data/train_prep_nontree_base.csv")
+df_test = pd.read_csv("./data/train_prep_nontree_valid.csv")
 
 X_train = df_train.drop(["PassengerId", "Survived"], axis=1)
 y_train = df_train["Survived"]
@@ -17,16 +17,17 @@ y_train = df_train["Survived"]
 X_test = df_test.drop(["PassengerId", "Survived"], axis=1)
 
 # 特徴量をランダムフォレストの重要度が高いやつに絞る
-#cols = ["Sex", "title", "umap_2", "Pclass", "Fare", "umap_1", "Age"]
-cols = ["Sex", "title", "umap_2", "umap_1", "Age", "Embarked", "ticket_1"]
-X_train = X_train[cols]
-X_test = X_test[cols]
+# cols = ["Sex", "title", "umap_2", "Pclass", "Fare", "umap_1", "Age"]
+# cols = ["Sex", "title", "umap_2", "umap_1", "Age", "Embarked", "ticket_1"]
+# X_train = X_train[cols]
+# X_test = X_test[cols]
 
 #clf = LogisticRegressionCV(cv=5, scoring="roc_auc", random_state=1031)
 
 param_grid = {
     "C": np.logspace(-3, 3, 7),
     "penalty": ["l1", "l2"],  # l1 lasso l2 ridge
+    "solver": ["liblinear", "lbfgs"],
     # const
     "random_state": [1031]
 }
