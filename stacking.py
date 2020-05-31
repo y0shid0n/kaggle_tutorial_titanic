@@ -10,12 +10,12 @@ import mlp_net
 device = "cuda" if torch.cuda.is_available() else 'cpu'
 
 # hash values
-hash_lr = "5263dece31afd0beb01a03b3e3a3731c"
-hash_rf = "1bef2dfa990cd12bd8ad4313d2830030"
-hash_knn = "d8718b7844718dc4490ea3a75bc6c2bd"
+hash_lr = "ee5db903966c86d64a1040cb5ab8801d"
+hash_rf = "ca783ea6fd88a5247e4e24821cd23ecf"
+hash_knn = "4f1ffb98696e1a77802a5e7c61f0cb09"
 hash_lgbm = "f9a7f16ed061fbefb81b345d331d60b9"
 hash_catb = "42de8481ab2b6892b64d9c8b9f931821"
-hash_svc = "eef8fe77878c1c6c947cbe8d7b23757a"
+hash_svc = "22f4d2dcae8656741c1e39fd12f2b1d6"
 hash_mlp = "f9d6489a2e41890659c64f284976ba14"
 
 # ベースモデル読み込み
