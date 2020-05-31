@@ -7,8 +7,8 @@ import hashlib
 import pickle
 
 # 読み込み
-df_train = pd.read_csv("./data/train_prep_base.csv")
-df_test = pd.read_csv("./data/train_prep_valid.csv")
+df_train = pd.read_csv("./data/train_prep_tree_base.csv")
+df_test = pd.read_csv("./data/train_prep_tree_valid.csv")
 
 X_train = df_train.drop(["PassengerId", "Survived"], axis=1)
 y_train = df_train["Survived"]
@@ -20,38 +20,28 @@ X_test = df_test.drop(["PassengerId", "Survived"], axis=1)
 
 # use a full grid over all parameters
 param_grid = {
-    "max_depth": [3, 5, 7, None],
-    "max_features": [3, 5, 10],
+    "max_depth": [3, 4, 5, 6, 7, None],
+    "max_features": [5, 10, 15],
     "min_samples_split": [2, 3, 5],
     "min_samples_leaf": [1, 3, 5],
     # const
-    "n_estimators":[500],
+    "n_estimators":[1000],
     "bootstrap": [True],
     "criterion": ["gini"],
     "random_state": [1031]
 }
 
 # fix_params
-param_grid = {
-    "max_depth": [5],
-    "max_features": [10],
-    "min_samples_split": [2],
-    "min_samples_leaf": [3],
-    "n_estimators":[500],
-    "bootstrap": [True],
-    "criterion": ["gini"],
-    "random_state": [1031]
-}
-
-# test
-# param_grid = {"max_depth": [None],
-#               "n_estimators":[500],
-#               "max_features": [10],
-#               "min_samples_split": [10],
-#               "min_samples_leaf": [10],
-#               "bootstrap": [True],
-#               "criterion": ["gini"]
-#              }
+# param_grid = {
+#     "max_depth": [4],
+#     "max_features": [10],
+#     "min_samples_split": [2],
+#     "min_samples_leaf": [1],
+#     "n_estimators":[1000],
+#     "bootstrap": [True],
+#     "criterion": ["gini"],
+#     "random_state": [1031]
+# }
 
 clf = GridSearchCV(estimator = RandomForestClassifier(),
                 param_grid = param_grid,
@@ -62,6 +52,7 @@ clf = GridSearchCV(estimator = RandomForestClassifier(),
 clf.fit(X_train, y_train) # fit
 
 print("Best Model Parameter: ", clf.best_params_)
+print("Best score", clf.best_score_)
 
 # パラメータをハッシュ化してファイル名に投げる
 hs = hashlib.md5(str(clf.best_params_).encode()).hexdigest()
@@ -71,7 +62,7 @@ clf = clf.best_estimator_ # best estimator
 # 変数重要度を出力
 with open(f"./output/importance_rf_{hs}.csv", "w", newline="", encoding="utf-8") as f:
     f.write("feature,importance\n")
-    for name, score in sorted(zip(X_train.columns, clf.feature_importances_), reverse=True):
+    for score, name in sorted(zip(clf.feature_importances_, X_train.columns), reverse=True):
         f.write(f"{name},{score}\n")
         print(f"{name}: {score}")
 
