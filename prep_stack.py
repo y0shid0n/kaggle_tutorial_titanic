@@ -78,3 +78,9 @@ test_tree.to_csv("./data/test_prep_tree.csv", index=False)
 train_nontree.to_csv("./data/train_prep_nontree_base.csv", index=False)
 valid_nontree.to_csv("./data/train_prep_nontree_valid.csv", index=False)
 test_nontree.to_csv("./data/test_prep_nontree.csv", index=False)
+
+# 分割してないほうも出力
+df_train_tree = df_train[cols_tree + ["Survived"]]
+df_train_nontree = df_train[cols_nontree + ["Survived"]]
+df_train_tree.to_csv("./data/train_prep_tree.csv", index=False)
+df_train_nontree.to_csv("./data/train_prep_nontree.csv", index=False)
