@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from sklearn.model_selection import train_test_split
 import lightgbm as lgb
 from datetime import datetime
@@ -66,10 +67,13 @@ cv_result = lgb.cv(lgbm_params, trains
                     , verbose_eval=100
                     , return_cvbooster=True)
 
-clf = cv_result["cvbooster"]
+# fold分のboosterが取れる
+cvbooster = cv_result["cvbooster"]
 
 # テストデータを予測する
-y_pred_proba = clf.predict(X_test, num_iteration=clf.best_iteration)[0]
+# 各boosterの予測結果を平均する
+y_pred_proba_list = cvbooster.predict(X_test, num_iteration=cvbooster.best_iteration)
+y_pred_proba = np.array(y_pred_proba_list).mean(axis=0)
 y_pred = [0 if i < 0.5 else 1 for i in y_pred_proba]
 
 # 出力
@@ -81,5 +85,9 @@ output_proba.to_csv(f"./output/base_pred_proba_lgbm_cv_{hs}.csv", index=False)
 output.to_csv(f"./output/base_pred_lgbm_cv_{hs}.csv", index=False)
 
 # モデルの出力
-with open(f'./pkl/lgbm_{hs}.pkl', mode='wb') as fp:
-    pickle.dump(clf, fp)
+# with open(f'./pkl/lgbm_{hs}.pkl', mode='wb') as fp:
+#     pickle.dump(clf, fp)
+for i, booster in enumerate(cvbooster.boosters):
+    booster.save_model(f"./pkl/lgbm_cv_{hs}_{i}.txt")
+with open(f"./pkl/lgbm_cv_{hs}_best_iter.txt", "w") as f:
+    f.write(str(cvbooster.best_iteration))
