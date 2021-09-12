@@ -49,16 +49,27 @@ lgbm_params = {
 hs = hashlib.md5(str(lgbm_params).encode()).hexdigest()
 
 # 上記のパラメータでモデルを学習する
-clf = lgb.train(lgbm_params, trains,
-                  # モデルの評価用データを渡す
-                  valid_sets=valids,
-                  # 最大で 1000 ラウンドまで学習する
-                  num_boost_round=1000,
-                  # 10 ラウンド経過しても性能が向上しないときは学習を打ち切る
-                  early_stopping_rounds=100)
+# clf = lgb.train(lgbm_params, trains,
+#                   # モデルの評価用データを渡す
+#                   valid_sets=valids,
+#                   # 最大で 1000 ラウンドまで学習する
+#                   num_boost_round=1000,
+#                   # 10 ラウンド経過しても性能が向上しないときは学習を打ち切る
+#                   early_stopping_rounds=100)
+
+# lgb.cvで学習済みモデルを取り出せるようになってたのでこっちのほうがよさげ
+cv_result = lgb.cv(lgbm_params, trains
+                    , early_stopping_rounds=100
+                    , stratified=True
+                    , nfold=5
+                    , num_boost_round=9999
+                    , verbose_eval=100
+                    , return_cvbooster=True)
+
+clf = cv_result["cvbooster"]
 
 # テストデータを予測する
-y_pred_proba = clf.predict(X_test, num_iteration=clf.best_iteration)
+y_pred_proba = clf.predict(X_test, num_iteration=clf.best_iteration)[0]
 y_pred = [0 if i < 0.5 else 1 for i in y_pred_proba]
 
 # 出力
@@ -66,8 +77,8 @@ output_proba = pd.concat([df_test[["PassengerId", "Survived"]], pd.Series(y_pred
 output = pd.concat([df_test[["PassengerId", "Survived"]], pd.Series(y_pred, name="pred")], axis=1)
 now = datetime.now().strftime('%Y%m%d%H%M%S')
 
-output_proba.to_csv(f"./output/base_pred_proba_lgbm_{hs}.csv", index=False)
-output.to_csv(f"./output/base_pred_lgbm_{hs}.csv", index=False)
+output_proba.to_csv(f"./output/base_pred_proba_lgbm_cv_{hs}.csv", index=False)
+output.to_csv(f"./output/base_pred_lgbm_cv_{hs}.csv", index=False)
 
 # モデルの出力
 with open(f'./pkl/lgbm_{hs}.pkl', mode='wb') as fp:
